@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %} Ratings {% endblock %}
+{% block main %}
+<h2 style="text-align: center;margin: 16px;">RECOMMENDED</h2>
+<div id="tl">
+
+<table>
+    <tr>
+        <th>Song</th>
+        <th>Average Rating</th>
+        <th>Your Rating</th>
+    </tr>
+{% for song in songs %}
+
+    <tr>
+        <td><a href="{{song.link}}" target="_blank"><h4>{{song.title}}</h4></a></td>
+        <td>{{song.avg}}</td>
+        <td>{{song.user_rating}}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

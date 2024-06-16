@@ -1,0 +1,109 @@
+body{
+    background-color: midnightblue;
+    color: white;
+
+}
+
+.main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+    margin: auto;
+}
+
+.form-group{
+    text-align: center;
+    margin: 16px;
+}
+
+a{
+    text-decoration: none;
+    color: white;
+}
+
+#index-c{
+    text-align: center;
+    margin:  16px;
+    padding: 16px;
+}
+
+#index-c .btn{
+    margin: 16px;
+}
+
+#index-c .btn a{
+    margin: 16px;
+    color:black;
+}
+
+
+#menu li{
+    list-style-type: none;
+    margin: 48px auto;
+    border: 1px solid white;
+    max-width: 240px;
+    padding: 14px 24px;
+    font-size: 24px;
+    border-radius: 8px;
+    background-color: white;
+    
+}
+
+#menu li a {
+    color: black;
+}
+
+
+.search-d li{
+    list-style-type: none;
+    margin: 48px auto;
+    border: 1px solid white;
+    max-width: fit-content;
+    padding: 16px;
+    background-color: white;
+    color:black;
+}
+
+.songs-list{
+    margin:  auto;
+    padding: 16px;
+    font-size: 20px;
+}
+
+.title{
+    font-size: 24px;
+    
+}
+
+.songs-list input[type=radio]{
+    margin: 16px;
+    font-size: 24px;
+    height: 20px;
+  width: 20px;
+}
+
+table{
+    padding: 24px;
+    margin: 24px auto;
+}
+table td,th{
+    padding: 24px;
+    border: solid 1px white;
+    border-collapse: collapse;
+}
+
+th{
+    font-size: 24px;
+}
+
+#slist p a, #slist p{
+    text-align: center;
+    color:black;
+}
+
+#slist li p{
+    width: 400px;
+}
+

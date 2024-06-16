@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %} Search {% endblock %}
+
+{% block main %}
+<h2 style="text-align: center;margin: 16px;">SEARCH</h2>
+<div class="search-d">
+    <form action="/search" method="post">
+        <div class="form-group">
+            <input required class="form-control" name="q" placeholder="Enter song title" type="search">
+        </div>
+    </form>
+    <ul id="slist"></ul>
+</div>
+<script>
+    let input = document.querySelector('input');
+    input.addEventListener('input', async function(){
+        let response = await fetch('/query?q=' + input.value);
+        let songs = await response.json();
+        let html = '';
+        for(let id in songs){
+            let title = songs[id].title.replace('<', '&lt;').replace('&', '&amp;');
+            if (songs[id].avg == null){
+                songs[id].avg = "NA" }
+            html += '<li>' + '<p>' + `<a href=\"${songs[id].link}\" target = \"_blank\">`+ title + '</a>'  +'</p>' + '<p>'+ songs[id].avg  +  '     <span class=\"fa fa-star checked\"></span>'  + '</p>' + '</li>';
+            console.log(html)
+        }
+        document.querySelector('#slist').innerHTML = html;
+    })
+</script>
+{% endblock %}
+

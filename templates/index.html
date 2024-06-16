@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %} HARMONIQ{% endblock %}
+
+{% block nav %}
+{% endblock %}
+
+{% block main %}
+<div class="img-c" style="text-align: center;height: 430px;">
+    <img src="/static/logo.jpg">
+</div>
+<div>
+    <div id="index-c">
+    {% if logged_in %}
+
+    <ul id="menu">
+        <li><a href="/search">SEARCH</a></li>
+        <li><a href="/recommend">RECOMMENDED</a></li>
+        <li><a href="/rate">RATE</a></li>
+    </ul>
+
+    <button type="button" class="btn btn-light" name="LogOut"><a href="/logout"  >Log out</a></button>
+    
+    {% else %}
+    
+        <h2>HARMONIQ</h2>
+        <button type="button" class="btn btn-light" name="Register"><a href="/register"  >Register</a></button>
+        <button type="button" class="btn btn-light" name="Login"><a href="/login" >Login</a></button>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

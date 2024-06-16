@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %} Ratings {% endblock %}
+{% block main %}
+<h2 style="text-align: center;margin: 16px;">RATE</h2>
+
+<form class="songs-list" action="/rate" method="post"><table>
+    
+        <td>Song title</td>
+        <td>Rate the song</td>
+        <td>Previous rating</td>
+    
+{% for song in songs %}
+<div class="form-group">
+    <tr>
+        <td >
+    <p class="title"><a href="{{song.link}}">{{song.title}} </a></p></td>
+    <td id="ra" style="width: 450px;">
+    <input type="radio" name="score{{song.id}}" value = 1>1
+    <input type="radio" name="score{{song.id}}" value = 2>2
+    <input type="radio" name="score{{song.id}}" value = 3>3
+    <input type="radio" name="score{{song.id}}" value = 4>4
+    <input type="radio" name="score{{song.id}}" value = 5>5
+</td><td>{{song.user_rating}}</td>
+    </tr>
+</div>
+{% endfor %}
+</table>
+<div class="form-group">
+<button class="submit btn btn-primary" type="submit">Submit</button>
+            </div>
+            </form>
+{% endblock %}
