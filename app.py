@@ -149,20 +149,23 @@ def login():
             return "Must provied password"
         
         rows = cursor.execute("SELECT * FROM user").fetchall()
-
+        
         cont = 0
         req_id = -1
+        req_row = []
         for row in rows:
             if row[1] == request.form.get('username'):
-                cont = 1
+                cont = 1       
                 req_id = row[0]
+                req_row = row
+                print(request.form.get('username'), req_id)
                 break
 
-        if cont == 0 or not check_password_hash(rows[0][2], request.form.get("password")):
+        if cont == 0 or not check_password_hash(req_row[2], request.form.get("password")):
             return "Invalid username or password"
         
         session["user_id"] = req_id
-        print(session["user_id"])
+        
         return redirect("/")
     
     else:
