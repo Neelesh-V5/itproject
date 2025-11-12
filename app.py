@@ -267,32 +267,76 @@ def rate():
 @app.route('/recommend')
 @login_required
 def recommend():
-    songs = cursor.execute('''
-            SELECT * FROM songs;
+    user_id = session["user_id"]
+
+    # Fetch all ratings
+    ratings = cursor.execute('SELECT user_id, song_id, rating FROM ratings').fetchall()
+    if not ratings:
+        return render_template('recommend.html', songs=[], message="No ratings yet!")
+
+    # Convert to pandas DataFrame for easier manipulation
+    import pandas as pd
+    df = pd.DataFrame(ratings, columns=['user_id', 'song_id', 'rating'])
+
+    # Create user-song matrix
+    matrix = df.pivot_table(index='user_id', columns='song_id', values='rating')
+
+    # If user hasn’t rated anything yet, show top songs by avg
+    if user_id not in matrix.index:
+        songs = cursor.execute('''
+            SELECT s.id, s.title, s.link, AVG(r.rating)
+            FROM songs s LEFT JOIN ratings r ON s.id = r.song_id
+            GROUP BY s.id ORDER BY AVG(r.rating) DESC LIMIT 10;
         ''').fetchall()
-    obj = []
-    your_rating = list(["NA",])
-    
-    for result in songs:
-      avg = cursor.execute('''
-            SELECT avg(rating) FROM ratings WHERE song_id = ?
-          ''', (result[0],)).fetchone()[0]
-      
-      if cursor.execute("SELECT rating FROM ratings WHERE user_id = ? AND song_id = ?",(session["user_id"],result[0])).fetchall():
-        your_rating = cursor.execute("SELECT rating FROM ratings WHERE user_id = ? AND song_id = ?",(session["user_id"],result[0])).fetchall()[0]
-        obj.append({'id': result[0], 'title' : result[1], 'link' : result[2], 'avg' : avg, 'user_rating' : your_rating[0]})
-      else:
-        obj.append({'id': result[0], 'title' : result[1], 'link' : result[2], 'avg' : avg, 'user_rating' : 'NA'})
-    
-    def sortRate(song):
-        if song['avg'] == None:
-            return 0
-        return song['avg']
+        obj = [{'id': s[0], 'title': s[1], 'link': s[2], 'avg': s[3]} for s in songs]
+        return render_template('recommend.html', songs=obj, message="Recommended popular songs!")
 
-    obj.sort(key=sortRate, reverse=True)
-    print(obj)
-    
+    # Compute user similarity using correlation
+    user_ratings = matrix.loc[user_id]
+    sim_scores = matrix.corrwith(user_ratings, axis=1, method='pearson')
+    sim_scores = sim_scores.dropna().sort_values(ascending=False)
 
-    return render_template('recommend.html', songs = obj)
+    # Weighted recommendation score
+    predictions = {}
+    for other_user, similarity in sim_scores.items():
+        if other_user == user_id or similarity <= 0:
+            continue
 
-        
+        other_ratings = matrix.loc[other_user]
+        for song_id, rating in other_ratings.items():
+            if pd.isna(user_ratings.get(song_id)) and not pd.isna(rating):
+                if song_id not in predictions:
+                    predictions[song_id] = []
+                predictions[song_id].append(similarity * rating)
+
+    # Compute weighted average
+    recommended = []
+    for song_id, scores in predictions.items():
+        predicted_rating = sum(scores) / len(scores)
+        song = cursor.execute("SELECT id, title, link FROM songs WHERE id = ?", (song_id,)).fetchone()
+        if song:
+            recommended.append({
+                'id': song[0],
+                'title': song[1],
+                'link': song[2],
+                'predicted': round(predicted_rating, 2)
+            })
+
+    # Sort by predicted rating
+    recommended.sort(key=lambda x: x['predicted'], reverse=True)
+    top_recs = recommended[:10]
+
+    # If no personalized recommendations, show top-rated songs overall
+    if not top_recs:
+        songs = cursor.execute('''
+            SELECT s.id, s.title, s.link, AVG(r.rating)
+            FROM songs s LEFT JOIN ratings r ON s.id = r.song_id
+            GROUP BY s.id ORDER BY AVG(r.rating) DESC LIMIT 10;
+        ''').fetchall()
+        top_recs = [{'id': s[0], 'title': s[1], 'link': s[2], 'predicted': s[3]} for s in songs]
+
+    return render_template('recommend.html', songs=top_recs, message="Your personalized recommendations!")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
